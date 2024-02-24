@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="web.css">
+  <title>Sign Language</title>
+</head>
+
+<header>
+	<div class="logo">
+		My Website
+	</div>
+	<ul class="menu">
+		<li><a href="index.html">Home Page</a></li>
+		<li><a href="LQD.html">My School</a></li>
+		<li><a href="Web.html">The Sign Language Supporter</a></li>
+		<li><a href="AnhHai.html">ANH HAI FC</a></li>
+	</ul>    
+</header>
+
+<div id = "wrapper">
+	<div id ="header">
+		<img src="logokhkt.png" align="left" height="150" width="150">
+		<img src="logokhkt.png" align="right" height="150" width="150">
+			<h1> Giới thiệu về demo sản phẩm </h1>
+	</div>
+</div>
+
+<div id = "main-content">
+	<div id = "content">
+		
+		<h1> The Supporter Sign Language </h1>
+	</div>
+</div>
+<body>
+   
+  <div class="container" style="display:flex;">
+    <div style="margin-right: 20px;"> 
+        <p>Camera đầu vào</p>
+        <video class="input_video"></video>
+    </div>
+    <div> 
+        <p>Camera đầu ra</p>
+        <canvas class="output_canvas" width="600px" height="450px"></canvas>
+     </div>    
+  </div>
+  <h2>Text tương ứng với ngôn ngữ hình thể kèm âm thanh</h2>
+    <p>Sản phẩm được phát triển bởi Trịnh Hữu Trí, Phạm Nguyên Khang và sự hỗ trợ của thầy Dương Khắc Hưởng</p>
+	<p>Sản phẩm đã đạt giải nhất cuộc thi KHKT cấp tỉnh và lụm vé đi vòng chung kết Quốc Gia 2023</p>
+    <h3> Copyright &copy; by Trinh Huu Tri, Pham Nguyen Khang </h3>
+</body> 
+
+<script type="module">
+	const videoElement = document.getElementsByClassName('input_video')[0];
+	const canvasElement = document.getElementsByClassName('output_canvas')[0];
+	const canvasCtx = canvasElement.getContext('2d');
+	function onResults(results) {
+		canvasCtx.save();
+		canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+		canvasCtx.drawImage(
+		results.image, 0, 0, canvasElement.width, canvasElement.height);
+		if (results.multiHandLandmarks) {
+			for (const landmarks of results.multiHandLandmarks) {
+				drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+						 {color: '#00FF00', lineWidth: 5});
+				drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
+			}
+		}
+		canvasCtx.restore();
+	}
+
+	const hands = new Hands({locateFile: (file) => {
+		return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+	}});
+	hands.setOptions({
+		maxNumHands: 20,
+		modelComplexity: 1,
+		minDetectionConfidence: 0.5,
+		minTrackingConfidence: 0.5
+	});
+	hands.onResults(onResults);
+
+	const camera = new Camera(videoElement, {
+	  onFrame: async () => {
+		await hands.send({image: videoElement});
+	  },
+	  width: 600,
+	  height: 450
+	});
+	camera.start();
+</script>
+</html>
